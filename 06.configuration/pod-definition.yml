@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-slepper-pod
+spec:
+  securityContext: #실행할 사용자 정의
+    runAsUser: 1000
+  containers:
+    - name: ubuntu-slepper
+      image: ubuntu-slepper
+      command: ['sleep2.0'] #docker의 ENTRYPOINT
+      args: ['10'] #docker의 CMD
+      env:
+        - name: APP_COLOR
+          valueFrom:
+            configMapKeyRef:
+              name: webapp-config-map
+              key: APP_COLOR
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: DB_HOST
+      envFrom:
+        - secretRef:
+            name: app-secret
+      securityContext: #실행할 사용자 정의
+        runAsUser: 1000
+        capabilities:
+          add: ['MAC_ADMIN']
+      resources:
+        requests:
+          memory: '1Gi'
+          cpu: '1'
+        limits:
+          memory: '2Gi'
+          cpu: '2'
+  serviceAccountName: dashboard-sa #사용자 정의 서비스계정 지정
+  automountServiceAccountToken: false #서비스계정 마운트 x
+  tolerations: # 해당노드에 특정노드만 들어갈수 있게 지정할 수 있다.
+    - key: app
+      operator: 'Equal'
+      value: 'blue'
+      effect: 'NoSchedule'
+  nodeSelector: # 특정노드에 할당되게 지정
+    size: Large # <- label 지정
+  affinity:
+    nodeAffinity:
+      # requiredDuringSchedulingRequiredDuringExecution
+      # preferredDuringSchedulingIgnoredDuringExecution: #레이블에 해당하는 노드가 없으면 포드는 다른노드에 배치
+      #   - preference:
+      #     weight:
+      requiredDuringSchedulingIgnoredDuringExecution: #레이블에 해당하는 노드가 없으면 포드는 pending
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: size
+                operator: In #In ,NotIn, Exists, NotExists
+                values:
+                  - Large
+                  - Medium

@@ -1,0 +1,75 @@
+-------쿠버네티스 구조--------
+//노드
+작업자 머신으로 쿠버네티스가 컨테이너를 런칭하는 곳
+
+//클러스터
+함께묶인 노드의 집합,다수의 노드는 노드 공유에도 도움이됨
+
+//마스터노드
+쿠버네티스에 설치된 또 다른 노드
+마스터 노드는 클러스트에서 노드를 관찰한다.
+
+//컴포넌츠
+서버,기타서비스,쿠벨렛 서비스 컨테이너 런타임,스케줄러,컨트롤러 등등 포함된 서비스
+Etcd는 분산되고 신뢰할 수 있는 키 값 저장소-> 클러스트 관리에 사용되는 모든 데이터를 저장하는데 사용
+
+//마스터노드 vs 워크노드
+워크노드에 컨테이너 런타임이 있고 이게 컨테이너를 실행한다.
+워크노드에는 큐블렛 에이전트가 있는데 노드의 건강정보를 제공하고 마스터가 요청한 작업을 수행
+마스터노드에는 kube-apiserver,etcd,controller,scheduler가 포함돼있고
+워크노드에는 kubelet(에이전트),Container Runtime가 포함돼있다
+
+//PODS
+포드는 응용프로그램의 단일인스턴스이다.
+포드하나에 여러개의 컨테이너가 들어갈 수 있다.
+kubectl run ngnix --image ngnix
+kubectl get pods
+kubectl create -f pod-definition.yml(pod객체 생성)
+pod 상세정보 보기 kubectl describe pod myapp-pod(라벨명)
+
+//객체 yml
+객체 yml 파일 작성시 기본 apiVersion,kind,metadata,spe로 구성
+
+-------쿠버네티스 컨트롤러--------
+//컨트롤러
+쿠버네티스를 모니터링하고 반응하는 프로세스 -> 포드가 항상 실행하도록 보장한다.
+
+//replicaSet
+한개의 컨테이너를 동일한 집합체로 여러개의 포드로 생성할 수 있다.
+포드들을 모니터하고 하나가 고장나면 새포드를 배포
+복제본을 늘리고싶을경우
+kubectl replace -f replicaset-definition.yaml
+kubectl scale --replicas=6 -f replicaset-definition.yaml
+kubectl scale --replicas=6 replicaset myapp-replicaset
+** 수정하고 싶을땐 kubectl edit rs new-replica-set(replicaset명)
+
+//namespace
+각각의 deployments를 네임스페이스로 그룹지을수 있다
+예를들어 LASTNAME을 생각하면된다.
+namespace 'dev' 에 db-service 도메인을 생각해 봤을때
+db-service.dev.svc.cluster.local
+cluster.local(기본 쿠버네티스 domain)
+svc(service)
+dev(namespace)
+db-service(service Name)
+해당 네임스페이스에 포함한 것들을 살펴보고 싶을땐 혹은 네임스페이스를 할당하고싶을때 사용
+--namespace='namespace' , --n='namespace'
+--all-namespaces,-A
+하지만 yaml파일에 정의도 할 수 있다
+metadata:
+    name: myapp-pod
+    namespace: dev
+**kubectl 기본 namespace 변경
+kubectl config set-contex ${kubectl config current-context} --namespace=dev
+
+//명령어로 생성하기 ** --dry-run=client (임시실행)
+-pod 생성
+kubectl run nginx --image=nginx --dry-run=client -o yaml
+-deployment 생성 및 수정
+kubectl create deployment --image=nginx nginx --dry-run -o yaml
+kubectl scale deployment nginx --replicas=4
+kubectl create deployment nginx --image=nginx--dry-run=client -o yaml > nginx-deployment.yaml
+-서비스생성
+kubectl expose pod redis --port=6379 --name redis-service --dry-run=client -o yaml
+kubectl create service clusterip redis --tcp=6379:6379 --dry-run=client -o yaml
+kubectl expose pod nginx --port=80 --name nginx-service --type=NodePort --dry-run=client -o yaml
