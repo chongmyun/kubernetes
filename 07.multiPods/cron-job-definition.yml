@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: reporting-cron-job
+spec:
+  schedule: '*/1 * * * *'
+  jobTemplate:
+    spec:
+      completions: 3 #replicas와 비슷 성공횟수
+      parallelism: 3 #병렬처리 갯수
+      template:
+        spec:
+          containers:
+            - name: math-add
+              image: ubuntu
+              command: ['expr', '3', '+', '2']
+          restartPolicy: Never #Always 기본값이다
+

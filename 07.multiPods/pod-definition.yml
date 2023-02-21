@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: simple-webapp
+  labels:
+    name: simple-webapp
+spec:
+  containers:
+    - name: simple-webapp
+      image: simple-webapp
+      ports:
+        - containerPort: 8080
+      readinessProbe: #애플리케이션 생명여부 파악
+        httpGet:
+          path: /api/ready
+          port: 8080
+        initialDelaySeconds: 10 #애플리케이션 예열 지연시간
+        periodSeconds: 5 # 5초에 한번씩 탐색
+        failureThreshold: 8 # 재시도 횟수 기본값 3회
+      livenessProbe:
+        httpGet:
+          path: /api/healthy
+          port: 8080
+          initialDelaySeconds: 10 #애플리케이션 예열 지연시간
+          periodSeconds: 5 # 5초에 한번씩 탐색
+          failureThreshold: 8 # 재시도 횟수 기본값 3회
+    - name: image-processor
+      image: some-image-processor

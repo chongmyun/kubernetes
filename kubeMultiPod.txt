@@ -1,0 +1,67 @@
+//멀티 컨테이너 디자인 패턴
+sidecar : 서로 다른 역할을 하는 서비스는 각각의 컨테이너로 분리 -> 메인컨테이너의 기능을 확장 또는 향상
+ambassedor : 메인컨테이너의 네트워크 연결을 전담하는 프록시 컨테이너를 두는 패턴 -> 메인컨테이너의 네트워크기능 담당
+adapter : 메인컨테이너의 출력을 표준화 -> 메인컨테이너의 출력을 변환
+
+//init containers
+메인 컨테이너 시작전에 먼저 시작할 컨테이너목록
+해당 컨테이너는 기존 컨테이너 명령어와 비슷하다. 하지만 안되는 부분도 있음
+
+//Readiness Probes
+pod는 status condition이 있다
+pod condition에는 podScheduled,initalized,containersReady,Ready가 있다
+podScheduled:포드가 노드에 지정되면 true로 변경
+initalized: 포드가 초기화되면 true로 변경
+containersReady: 컨테이너가 준비가 되면 true로 변경
+ready: 포드가 준비가 끝나면 true로 변경
+** 컨테이너 내부에 에플리케이션이 실행중인지 쿠버네티스가 알기위해서는
+ 컨테이너 내부에 에플리케이션이 실제로 준비되는지 알 수 있게 정의하는법이 있다
+
+ //liveness probes
+ 컨테이너내의 애플리케이션이 정상인지 테스트할 수 있다.
+
+ //logging
+ 포드의 컨테이너를 로깅할 수 있다
+ kubectl logs -f event-simulator-pod <컨테이너명>
+ 
+ //monitoring
+ minikube addons enable metrics-server
+ kubectl top node
+
+ //label selector annotation(주석)
+ kubectl get <obejct> --selector key=value,key=value,key=value
+
+// 롤아웃 리비전 Rolling Updates(배포의 업데이트) Rolling Rollback(배포의 롤백)
+rollout : 업그레이드된 버전을 배포했는데 문제가 생겨 이전 버전으로 돌아가고 싶을때
+kubectl rollout status deployment/myapp-deployment
+kubectl rollout history deployment/myapp-deployment
+kubectl rollout undo deploy nginx-deployment --to-revision=3
+**기본 배포전략 rolling update
+  kubectl apply -f deployment-definition.yml
+  kubectl set image deployment/myapp-deployment nginx=nginx:1.9.1
+
+**순서
+- create  : kubectl create -f deployment-definition.yml
+- get     : kubectl get deployments
+- update  : kubectl apply -f deployment-definition.yml
+            kubectl set image deployment/myapp-deployment nginx(컨테이너명)=nginx:1.9.1
+- status  : kubectl rollout status deployment/myapp-deployment
+  history : kubectl rollout history deployment/myapp-deployment
+  rollback: kubectl rollout undo deployment/myapp-deployment
+
+** 명령어
+--revision : 리비전
+--record: 배포를 생성/업데이트하는 데 사용되는 명령을 리비전 번호에 대해 저장할 수 있습니다.
+
+//job
+해당 작업을 마치고 끝내는 pod
+kubect create -f job-definition.yml
+kubectl get jobs
+kubectl delete job math-add-job
+
+//cron-job
+kubect create -f cron-job-definition.yml
+kubectl get cronjob
+kubectl delete cronjob math-add-job
+
+ 

@@ -1,0 +1,23 @@
+//service
+NodePort: 서비스가 노드의 포트에 내부포트를 엑세스하게할 수있다
+ClusterIP: 서비스가 클러스트내부에 가상IP륾 만들어 프론트앤드서버 세트와 백앤드서버 세트같은 다앙햔 서비스간의 통신을 가능하게함
+LoadBalencer: 지원되는 클라우드에서 응용프래그램을 공급
+
+NodePort는 노드의 포트와 포드의 포트를 매핑함으로써 외부에서 포드에 접근가능하게함
+service에서 targetPort 포드의 포트 port는 서비스의 포트를 나타낸다
+노드에도 포트(NodePort)가있는데 해당 포트로 외부에서 접근이 가능하다 -> range 30000 ~ 32767
+** 클러스트 내부에 고유한 IP주소를 가지고있다. 
+다중 포드에서는 port,label과 selector를 이용해 매핑
+다중 노드에서도 동일하게 port,label과 selector를 이용해 매핑
+
+ClusterIP
+서비스간에 통신이 가능하다. 
+포드가 서비스에 접근하기 위해서는 해당 서비스 명을 이용해야한다.
+
+//ingress
+쿠버네티스 클러스트에 빌드된 부하 분산 장치 (클러스트내에 기본으로 인그레스 컨트롤러가 없다)
+라우팅 기반의 부하분산을 수행한다. 
+트래픽 부하분산 솔루션(nginx,haproxy,trafik)을 배포하고
+ingress resources를 작성해 부하분산을 작동하게 한다.
+kubectl create ingress ingress-pay --namespace=critical-space --rule="경로=서비스명:서비스포트"
+
