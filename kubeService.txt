@@ -21,3 +21,14 @@ ClusterIP
 ingress resources를 작성해 부하분산을 작동하게 한다.
 kubectl create ingress ingress-pay --namespace=critical-space --rule="경로=서비스명:서비스포트"
 
+//네트워크 보안
+** 노드마다 IP주소가 있고 포드마다 서비스가 있다
+쿠버네티스 네트워킹 전제조건중 하나는 어떤 솔루션을 구현하든 포드가 서로 통신할 수 있어야한다 
+쿠버네티스 기본값 Allow규칙은 All Allow이다.
+
+ex) webPod,APIPod,DBPod가 있다고 가정할때 
+DBPod는 webPod의 트래픽을 막아야한다.
+
+네트워크 정책을 pod에 어떻게 적용할까 (Lable,Selector 이용)
+** 들어오는 트래픽을 허용하면 그 트래픽에 대한 응답이나 회신이 자동으로 허용
+
