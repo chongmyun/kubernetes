@@ -60,7 +60,7 @@ metadata:
     name: myapp-pod
     namespace: dev
 **kubectl 기본 namespace 변경
-kubectl config set-contex ${kubectl config current-context} --namespace=dev
+kubectl config set-context ${kubectl config current-context} --namespace=dev
 
 //명령어로 생성하기 ** --dry-run=client (임시실행)
 -pod 생성

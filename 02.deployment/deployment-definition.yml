@@ -10,11 +10,11 @@ spec:
     matchLabels:
       app: myapp
   template:
+    metadata:
+      name: nginx-pod
+      labels:
+        app: myapp
     spec:
-      metadata:
-        name: nginx-pod
-        labels:
-          app: myapp
       containers:
         - name: nginx-containers
           image: nginx

@@ -1,0 +1,30 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: flighttickets.flights.com
+spec:
+  scope: Namespaced # 해당 객체 범위 (Namespaced,clusterScop)
+  group: flights.com
+  name:
+    kind: FlightTicker # 객체명
+    singular: flightticket # 객체 상세조회시 사용할 명
+    piural: flighttickets # 객체 리스트 조회시 사용할 명
+    shortNames:
+      - ft
+  versions: # 해당버전들 alpas,beta
+    - name: v1
+      served: true # deprecated 지정
+      storage: true # 한개의 버전만 저장되어야함 (버전선호도? 같은느낌)
+  schema:
+    openAPIV3Schema:
+      spec:
+        type: object # 객체
+        properties: # 객체 생성시 필요한 spec
+          from:
+            type: string
+          to:
+            type: string
+          number:
+            type: integer
+            minimum: 1
+            maximum: 10
